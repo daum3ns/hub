@@ -57,7 +57,7 @@ func NewHttpService(svc service.Service, eventPublisher events.EventPublisher) *
 	}
 }
 
-func (httpSvc *HttpService) RegisterSharedRoutes(e *echo.Echo) {
+func (httpSvc *HttpService) RegisterSharedRoutes(e *echo.Echo, prefix string) {
 	e.HideBanner = true
 
 	e.Use(middleware.SecureWithConfig(middleware.SecureConfig{
@@ -89,16 +89,16 @@ func (httpSvc *HttpService) RegisterSharedRoutes(e *echo.Echo) {
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
 
-	e.GET("/api/info", httpSvc.infoHandler)
-	e.POST("/api/setup", httpSvc.setupHandler)
-	e.POST("/api/restore", httpSvc.restoreBackupHandler)
+	e.GET(prefix+"/api/info", httpSvc.infoHandler)
+	e.POST(prefix+"/api/setup", httpSvc.setupHandler)
+	e.POST(prefix+"/api/restore", httpSvc.restoreBackupHandler)
 
 	// allow one unlock request per second
 	unlockRateLimiter := middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(1))
-	e.POST("/api/start", httpSvc.startHandler, unlockRateLimiter)
-	e.POST("/api/unlock", httpSvc.unlockHandler, unlockRateLimiter)
-	e.POST("/api/backup", httpSvc.createBackupHandler, unlockRateLimiter)
-	e.GET("/logout", httpSvc.logoutHandler, unlockRateLimiter)
+	e.POST(prefix+"/api/start", httpSvc.startHandler, unlockRateLimiter)
+	e.POST(prefix+"/api/unlock", httpSvc.unlockHandler, unlockRateLimiter)
+	e.POST(prefix+"/api/backup", httpSvc.createBackupHandler, unlockRateLimiter)
+	e.GET(prefix+"/logout", httpSvc.logoutHandler, unlockRateLimiter)
 
 	frontend.RegisterHandlers(e)
 
@@ -110,7 +110,7 @@ func (httpSvc *HttpService) RegisterSharedRoutes(e *echo.Echo) {
 		},
 		SigningKey: []byte(httpSvc.cfg.GetJWTSecret()),
 	}
-	restrictedApiGroup := e.Group("/api")
+	restrictedApiGroup := e.Group(prefix + "/api")
 	restrictedApiGroup.Use(echojwt.WithConfig(jwtConfig))
 
 	restrictedApiGroup.PATCH("/unlock-password", httpSvc.changeUnlockPasswordHandler)
@@ -158,7 +158,7 @@ func (httpSvc *HttpService) RegisterSharedRoutes(e *echo.Echo) {
 	restrictedApiGroup.GET("/commands", httpSvc.getCustomNodeCommandsHandler)
 	restrictedApiGroup.POST("/command", httpSvc.execCustomNodeCommandHandler)
 
-	httpSvc.albyHttpSvc.RegisterSharedRoutes(restrictedApiGroup, e)
+	httpSvc.albyHttpSvc.RegisterSharedRoutes(restrictedApiGroup, e, prefix)
 }
 
 func (httpSvc *HttpService) infoHandler(c echo.Context) error {

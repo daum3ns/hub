@@ -26,10 +26,10 @@ func NewAlbyHttpService(svc service.Service, albyOAuthSvc alby.AlbyOAuthService,
 	}
 }
 
-func (albyHttpSvc *AlbyHttpService) RegisterSharedRoutes(restrictedApiGroup *echo.Group, e *echo.Echo) {
-	e.GET("/api/alby/callback", albyHttpSvc.albyCallbackHandler)
-	e.GET("/api/alby/info", albyHttpSvc.albyInfoHandler)
-	e.GET("/api/alby/rates", albyHttpSvc.albyBitcoinRateHandler)
+func (albyHttpSvc *AlbyHttpService) RegisterSharedRoutes(restrictedApiGroup *echo.Group, e *echo.Echo, prefix string) {
+	e.GET(prefix+"/api/alby/callback", albyHttpSvc.albyCallbackHandler)
+	e.GET(prefix+"/api/alby/info", albyHttpSvc.albyInfoHandler)
+	e.GET(prefix+"/api/alby/rates", albyHttpSvc.albyBitcoinRateHandler)
 	restrictedApiGroup.GET("/alby/me", albyHttpSvc.albyMeHandler)
 	restrictedApiGroup.GET("/alby/balance", albyHttpSvc.albyBalanceHandler)
 	restrictedApiGroup.POST("/alby/pay", albyHttpSvc.albyPayHandler)

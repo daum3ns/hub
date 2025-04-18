@@ -31,7 +31,7 @@ func main() {
 
 	//register shared routes
 	httpSvc := http.NewHttpService(svc, svc.GetEventPublisher())
-	httpSvc.RegisterSharedRoutes(e)
+	httpSvc.RegisterSharedRoutes(e, "/albyhub")
 	//start Echo server
 	go func() {
 		if err := e.Start(fmt.Sprintf(":%v", svc.GetConfig().GetEnv().Port)); err != nil && err != nethttp.ErrServerClosed {

@@ -60,6 +60,7 @@ export default defineConfig(({ command }) => ({
       },
     },
   },
+  base: "/albyhub/",
   resolve: {
     alias: {
       src: path.resolve(__dirname, "./src"),
